@@ -1,0 +1,101 @@
+# Camera Lock Backend (POC)
+
+A streamlined Node.js backend for the Camera Lock App POC. This backend handles device enrollment (entry/lock) and unenrollment (exit/unlock) via QR codes.
+
+## 🚀 Features
+
+- **Entry Scan**: Validates entry QR and locks camera.
+- **Exit Scan**: Validates exit QR and unlocks camera.
+- **POC Setup**: Script to generate Entry/Exit QRs for testing.
+
+## 📋 Prerequisites
+
+- Node.js (v14 or higher)
+- MongoDB (running locally or accessible via URI)
+
+## 🛠️ Installation & Setup
+
+1. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+2. **Configure environment variables**
+   Ensure `.env` exists and has the correct `MONGODB_URI`.
+   ```bash
+   # Example .env
+   PORT=5000
+   MONGODB_URI=mongodb://localhost:27017/camera-lock-system
+   JWT_SECRET=your-secret
+   ```
+
+3. **Run Setup (Generates QRs)**
+   This script creates a test Facility and generates the Entry and Exit QR tokens you need for the app.
+   ```bash
+   npm run setup
+   ```
+   **Copy the tokens output by this script.** You will use them in your API requests.
+
+4. **Start the server**
+   ```bash
+   npm start
+   ```
+   Server runs on `http://localhost:5000`.
+
+## 📚 API Endpoints
+
+### Base URL
+`http://localhost:5000/api`
+
+### 1. Entry Scan (Lock Camera)
+**Endpoint**: `POST /enrollments/scan-entry`
+
+**Request Body**:
+```json
+{
+  "token": "QR_CODE_CONTENT_FROM_SETUP",
+  "deviceId": "UNIQUE_DEVICE_ID",
+  "deviceInfo": {
+    "manufacturer": "Google",
+    "model": "Pixel 6",
+    "osVersion": "Android 13",
+    "platform": "android",
+    "appVersion": "1.0.0"
+  }
+}
+```
+
+**Response**:
+```json
+{
+  "status": "success",
+  "message": "Entry allowed",
+  "data": {
+    "enrollmentId": "...",
+    "facilityName": "Secure Facility A",
+    "action": "LOCK_CAMERA"
+  }
+}
+```
+
+### 2. Exit Scan (Unlock Camera)
+**Endpoint**: `POST /enrollments/scan-exit`
+
+**Request Body**:
+```json
+{
+  "token": "QR_CODE_CONTENT_FROM_SETUP",
+  "deviceId": "UNIQUE_DEVICE_ID"
+}
+```
+
+**Response**:
+```json
+{
+  "status": "success",
+  "message": "Exit allowed",
+  "data": {
+    "action": "UNLOCK_CAMERA"
+  }
+}
+```
