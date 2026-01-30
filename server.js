@@ -5,6 +5,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const path = require('path');
+const axios = require('axios');
 
 // Import routes
 const enrollmentRoutes = require('./routes/enrollment.routes');
@@ -70,6 +71,16 @@ mongoose.connect(process.env.MONGODB_URI)
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
       console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
+
+      // Self-Ping to keep Render free tier alive (Every 14 mins)
+      if (process.env.RENDER_EXTERNAL_URL) {
+        console.log('⏰ Keep-Alive service started');
+        setInterval(() => {
+          axios.get(`${process.env.RENDER_EXTERNAL_URL}/health`)
+            .then(() => console.log('💓 Self-ping success'))
+            .catch(e => console.error('💓 Self-ping failed:', e.message));
+        }, 14 * 60 * 1000); // 14 minutes
+      }
     });
   })
   .catch((err) => {
